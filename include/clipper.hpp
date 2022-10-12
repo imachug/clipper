@@ -718,6 +718,11 @@ public:
         ShowOneLineOptionHelp(ss);
         auto text = ss.str();
 
+        if(description.empty()) {
+            out << text << std::endl;
+            return;
+        }
+
         if (text.size() < OPTION_COLUMN_WIDTH) {
             text += std::string(OPTION_COLUMN_WIDTH - text.size(), ' ');
             out << text << description << std::endl;
