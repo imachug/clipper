@@ -41,13 +41,13 @@ class CLIArgumentParsingError : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
-template <typename... FnTypes, typename Arg, size_t Start = 0>
-static auto MapFunctionComposition(std::tuple<FnTypes &&...> fns, Arg &&arg) {
+template <typename Arg, size_t Start = 0, typename... FnTypes>
+static auto MapFunctionComposition(std::tuple<FnTypes...> fns, Arg arg) {
     if constexpr (Start == sizeof...(FnTypes)) {
         return arg;
     } else {
-        return std::forward<std::tuple_element_t<Start, decltype(fns)>>(std::get<Start>(fns))(
-            MapFunctionComposition<FnTypes..., Arg, Start + 1>(fns, arg));
+        return std::get<Start>(fns)(
+            MapFunctionComposition<Arg, Start + 1, FnTypes...>(fns, std::move(arg)));
     }
 }
 
@@ -140,9 +140,9 @@ struct RecursiveStringParser {
     }
 
     template <typename T>
-    auto operator()(const std::optional<T> &value) const {
+    auto operator()(const std::optional<T> &value) const -> std::optional<decltype((*this)(*value))> {
         if (value) {
-            return std::optional{(*this)(*value)};
+            return (*this)(*value);
         } else {
             return std::nullopt;
         }
@@ -605,7 +605,7 @@ public:
     /// must accept a single argument of type
     /// ::OriginalType. The returned type is arbitrary.
     template <typename Fn>
-    auto Map(Fn &fn) -> CLIOption<HasExplicitKey, HasExplicitMetaVar, ArgumentKind, IsRequired, IsRepeated,
+    auto Map(Fn fn) -> CLIOption<HasExplicitKey, HasExplicitMetaVar, ArgumentKind, IsRequired, IsRepeated,
                                   decltype(std::tuple_cat(map_functions, std::tuple{fn}))> {
         return {name,
                 description,
