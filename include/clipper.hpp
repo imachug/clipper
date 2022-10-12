@@ -773,7 +773,7 @@ protected:
                 throw CLIArgumentParsingError("Expected at least "s + std::to_string(option.min_arguments) +
                                               " argument(s) for option " + option.GetUserFriendlyName() + ", got " +
                                               std::to_string(arguments.size()) + '.');
-            } else if (arguments.size() >= option.max_arguments) {
+            } else if (arguments.size() > option.max_arguments) {
                 throw CLIArgumentParsingError("Expected at most "s + std::to_string(option.max_arguments) +
                                               " argument(s) for option " + option.GetUserFriendlyName() + ", got " +
                                               std::to_string(arguments.size()) + '.');
