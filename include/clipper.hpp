@@ -1093,6 +1093,10 @@ public:
     /// \param stream Where to output errors, help, and version
     /// \param error_exit_code The process exit code to use on failure
     auto StartArgv(const char* const* argv, std::ostream& stream = std::cerr, int error_exit_code = 1) const {
+        if (argv[0] == nullptr) {
+            ShowHelp("<program>", stream);
+            std::exit(error_exit_code);
+        }
         try {
             return std::apply(
                 [&](bool help_flag, bool version_flag, auto&&... rest) {
@@ -1111,7 +1115,7 @@ public:
                 },
                 parser_.Parse(argv + 1));
         } catch (CLIArgumentParsingError& err) {
-            if (argv[0] == nullptr || argv[1] == nullptr) {
+            if (argv[1] == nullptr) {
                 ShowHelp(argv[0], stream);
                 std::exit(0);
             } else {
