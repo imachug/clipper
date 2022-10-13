@@ -624,8 +624,8 @@ public:
     /// Example:
     ///
     /// \code{.cpp}
-    /// CLIOption{"optimization", "Set optimization
-    /// level"}.MetaVar("opt-level").Short('O').As<int>() \endcode
+    /// CLIOption{"optimization", "Set optimization level"}.MetaVar("opt-level").Short('O').As<int>()
+    /// \endcode
     template <typename ElementType>
     auto As() {
         return Map(RecursiveStringParser<ElementType>{});
