@@ -46,8 +46,7 @@ static auto MapFunctionComposition(std::tuple<FnTypes...> fns, Arg arg) {
     if constexpr (Start == sizeof...(FnTypes)) {
         return arg;
     } else {
-        return std::get<Start>(fns)(
-            MapFunctionComposition<Arg, Start + 1, FnTypes...>(fns, std::move(arg)));
+        return std::get<Start>(fns)(MapFunctionComposition<Arg, Start + 1, FnTypes...>(fns, std::move(arg)));
     }
 }
 
@@ -133,14 +132,14 @@ struct RecursiveStringParser {
     }
 
     template <typename T>
-    auto operator()(const std::vector<T> &value) const {
+    auto operator()(const std::vector<T>& value) const {
         std::vector<decltype((*this)(value[0]))> result(value.size());
         std::transform(value.begin(), value.end(), result.begin(), std::ref(*this));
         return result;
     }
 
     template <typename T>
-    auto operator()(const std::optional<T> &value) const -> std::optional<decltype((*this)(*value))> {
+    auto operator()(const std::optional<T>& value) const -> std::optional<decltype((*this)(*value))> {
         if (value) {
             return (*this)(*value);
         } else {
@@ -606,7 +605,7 @@ public:
     /// ::OriginalType. The returned type is arbitrary.
     template <typename Fn>
     auto Map(Fn fn) -> CLIOption<HasExplicitKey, HasExplicitMetaVar, ArgumentKind, IsRequired, IsRepeated,
-                                  decltype(std::tuple_cat(map_functions, std::tuple{fn}))> {
+                                 decltype(std::tuple_cat(map_functions, std::tuple{fn}))> {
         return {name,
                 description,
                 meta_var,
@@ -668,7 +667,7 @@ public:
 
     /// Print short details about the option to an output stream.
     /// \param out The stream to write the details too.
-    void ShowOneLineOptionHelp(std::ostream &out = std::cerr) const {
+    void ShowOneLineOptionHelp(std::ostream& out = std::cerr) const {
         std::string text;
 
         // Keys
@@ -711,14 +710,14 @@ public:
 
     /// Print details about the option to an output stream.
     /// \param out The stream to write the details too.
-    void ShowOptionHelp(std::ostream &out = std::cerr) const {
+    void ShowOptionHelp(std::ostream& out = std::cerr) const {
         static const size_t OPTION_COLUMN_WIDTH = 20;
 
         std::ostringstream ss;
         ShowOneLineOptionHelp(ss);
         auto text = ss.str();
 
-        if(description.empty()) {
+        if (description.empty()) {
             out << text << std::endl;
             return;
         }
@@ -765,7 +764,7 @@ protected:
     /// \exception CLIArgumentParsingError The provided arguments are invalid,
     /// e.g. there are too many of them.
     template <typename Option>
-    void HandleOption(const Option &option, typename Option::MultipleOptionType &value,
+    void HandleOption(const Option& option, typename Option::MultipleOptionType& value,
                       std::vector<std::string_view> arguments) const {
         if (option.min_arguments == option.max_arguments) {
             if (arguments.size() != option.min_arguments) {
@@ -799,8 +798,8 @@ protected:
     /// \exception CLIArgumentParsingError The provided arguments are invalid,
     /// e.g. no rest arguments are expected.
     template <size_t... I>
-    void ParseRestArguments(const std::vector<std::string_view> &arguments,
-                            std::tuple<typename CLIOptions::MultipleOptionType...> &result,
+    void ParseRestArguments(const std::vector<std::string_view>& arguments,
+                            std::tuple<typename CLIOptions::MultipleOptionType...>& result,
                             std::index_sequence<I...>) const {
         size_t arguments_offset = 0;
         (ParseRestOption(std::get<I>(options_), arguments, arguments_offset, std::get<I>(result)), ...);
@@ -814,8 +813,8 @@ protected:
     /// if it has no short or long key. \exception CLIArgumentParsingError The
     /// provided arguments are invalid, e.g. there are too many of them.
     template <typename Option>
-    void ParseRestOption(const Option &option, const std::vector<std::string_view> &arguments, size_t &arguments_offset,
-                         typename Option::MultipleOptionType &value) const {
+    void ParseRestOption(const Option& option, const std::vector<std::string_view>& arguments, size_t& arguments_offset,
+                         typename Option::MultipleOptionType& value) const {
         if (!(option.short_keys.empty() && option.long_keys.empty())) {
             return;
         }
@@ -830,8 +829,8 @@ protected:
     /// \exception CLIArgumentParsingError The provided arguments are invalid,
     /// e.g. the long option is not supported.
     template <size_t... I>
-    void ParseLongArgument(const char *const *&argv, std::string_view argument,
-                           std::tuple<typename CLIOptions::MultipleOptionType...> &result,
+    void ParseLongArgument(const char* const*& argv, std::string_view argument,
+                           std::tuple<typename CLIOptions::MultipleOptionType...>& result,
                            std::index_sequence<I...>) const {
         std::string_view name;
         std::optional<std::string_view> inline_value;
@@ -854,9 +853,9 @@ protected:
     /// e.g. there are too many of them. \returns Whether the given option took up
     /// parsing the arguments.
     template <typename Option>
-    bool TryParseLongOption(const Option &option, const char *const *&argv, std::string_view name,
+    bool TryParseLongOption(const Option& option, const char* const*& argv, std::string_view name,
                             std::optional<std::string_view> inline_value,
-                            typename Option::MultipleOptionType &value) const {
+                            typename Option::MultipleOptionType& value) const {
         if (std::find(option.long_keys.begin(), option.long_keys.end(), name) == option.long_keys.end()) {
             return false;
         }
@@ -878,8 +877,8 @@ protected:
     /// \exception CLIArgumentParsingError The provided arguments are invalid,
     /// e.g. the short option is not supported.
     template <size_t... I>
-    void ParseShortArgument(const char *const *&argv, std::string_view argument,
-                            std::tuple<typename CLIOptions::MultipleOptionType...> &result,
+    void ParseShortArgument(const char* const*& argv, std::string_view argument,
+                            std::tuple<typename CLIOptions::MultipleOptionType...>& result,
                             std::index_sequence<I...>) const {
         size_t offset = 1;
         while (offset < argument.size()) {
@@ -899,8 +898,8 @@ protected:
     /// e.g. there are too many of them. \returns Whether the given option took up
     /// parsing the arguments.
     template <typename Option>
-    bool TryParseShortOption(const Option &option, const char *const *&argv, char character, std::string_view argument,
-                             size_t &offset, typename Option::MultipleOptionType &value) const {
+    bool TryParseShortOption(const Option& option, const char* const*& argv, char character, std::string_view argument,
+                             size_t& offset, typename Option::MultipleOptionType& value) const {
         if (std::find(option.short_keys.begin(), option.short_keys.end(), character) == option.short_keys.end()) {
             return false;
         }
@@ -925,7 +924,7 @@ protected:
     /// \returns A tuple of parsed options.
     template <size_t... I>
     std::tuple<typename CLIOptions::ValueType...> FinalizeParsing(
-        std::tuple<typename CLIOptions::MultipleOptionType...> &result, std::index_sequence<I...>) const {
+        std::tuple<typename CLIOptions::MultipleOptionType...>& result, std::index_sequence<I...>) const {
         return std::make_tuple(FinalizeOptionParsing(std::get<I>(options_), std::get<I>(result))...);
     }
 
@@ -934,8 +933,8 @@ protected:
     /// present, a non-repeated option is present twice, or the option values are
     /// incorrect. \returns The value of the parsed option.
     template <typename Option>
-    typename Option::ValueType FinalizeOptionParsing(const Option &option,
-                                                     typename Option::MultipleOptionType &value) const {
+    typename Option::ValueType FinalizeOptionParsing(const Option& option,
+                                                     typename Option::MultipleOptionType& value) const {
         if (Option::IsOptionRequired && value.empty()) {
             throw CLIArgumentParsingError("Missing required option "s + option.GetUserFriendlyName() + '.');
         }
@@ -978,7 +977,7 @@ public:
     /// Parse a list of arguments.
     /// \exception CLIArgumentParsingError The given list of arguments does not
     /// satisfy option requirements. \returns A tuple of parsed options.
-    std::tuple<typename CLIOptions::ValueType...> Parse(const char *const *argv) const {
+    std::tuple<typename CLIOptions::ValueType...> Parse(const char* const* argv) const {
         std::tuple<typename CLIOptions::MultipleOptionType...> parsed_values{};
 
         auto index_sequence = std::make_index_sequence<sizeof...(CLIOptions)>();
@@ -1012,10 +1011,10 @@ public:
     ///
     /// If you find yourself calling this function directly, consider using
     /// ::CLIApplication instead.
-    void ShowOneLineOptionsHelp(std::string_view program_path, std::ostream &stream = std::cerr) const {
+    void ShowOneLineOptionsHelp(std::string_view program_path, std::ostream& stream = std::cerr) const {
         stream << program_path << " [options]";
         std::apply(
-            [&](const CLIOptions &...options) {
+            [&](const CLIOptions&... options) {
                 ((CLIOptions::ExplicitKey ? (void)0 : (stream << ' ', options.ShowOneLineOptionHelp(stream))), ...);
             },
             options_);
@@ -1025,8 +1024,8 @@ public:
     ///
     /// If you find yourself calling this function directly, consider using
     /// ::CLIApplication instead.
-    void ShowOptionsHelp(std::ostream &stream = std::cerr) const {
-        std::apply([&](const CLIOptions &...options) { (options.ShowOptionHelp(stream), ...); }, options_);
+    void ShowOptionsHelp(std::ostream& stream = std::cerr) const {
+        std::apply([&](const CLIOptions&... options) { (options.ShowOptionHelp(stream), ...); }, options_);
     }
 
 protected:
@@ -1087,10 +1086,10 @@ public:
     /// \param argv The command line argument list
     /// \param stream Where to output errors, help, and version
     /// \param error_exit_code The process exit code to use on failure
-    auto StartArgv(const char *const *argv, std::ostream &stream = std::cerr, int error_exit_code = 1) const {
+    auto StartArgv(const char* const* argv, std::ostream& stream = std::cerr, int error_exit_code = 1) const {
         try {
             return std::apply(
-                [&](bool help_flag, bool version_flag, auto &&...rest) {
+                [&](bool help_flag, bool version_flag, auto&&... rest) {
                     if (help_flag) {
                         ShowHelp(argv[0], stream);
                         std::exit(0);
@@ -1099,13 +1098,13 @@ public:
                         stream << name_ << " (version " << version_ << ")" << std::endl;
                         std::exit(0);
                     }
-                    for (auto &checker : checkers_) {
+                    for (auto& checker : checkers_) {
                         checker(rest...);
                     }
                     return std::make_tuple(std::forward<decltype(rest)>(rest)...);
                 },
                 parser_.Parse(argv + 1));
-        } catch (CLIArgumentParsingError &err) {
+        } catch (CLIArgumentParsingError& err) {
             if (argv[0] == nullptr || argv[1] == nullptr) {
                 ShowHelp(argv[0], stream);
                 std::exit(0);
@@ -1121,7 +1120,7 @@ public:
     ///
     /// \param program_path Path to executable, perhaps relative
     /// \param stream Where to output the details
-    void ShowHelp(std::string_view program_path, std::ostream &stream = std::cerr) const {
+    void ShowHelp(std::string_view program_path, std::ostream& stream = std::cerr) const {
         stream << name_ << " (version " << version_ << ")" << std::endl;
         stream << description_ << std::endl;
         stream << std::endl;
@@ -1163,7 +1162,7 @@ public:
     /// \endcode
     ///
     /// \param checker The checker function
-    void AddChecker(std::function<void(const typename OriginalCLIOptions::ValueType &...)> checker) {
+    void AddChecker(std::function<void(const typename OriginalCLIOptions::ValueType&...)> checker) {
         checkers_.push_back(std::move(checker));
     }
 
@@ -1172,18 +1171,18 @@ protected:
     std::string_view description_;
     std::string_view version_;
     CLIParser parser_;
-    std::vector<std::function<void(const typename OriginalCLIOptions::ValueType &...)>> checkers_;
+    std::vector<std::function<void(const typename OriginalCLIOptions::ValueType&...)>> checkers_;
 
     template <typename... CLIOptionsOther>
     friend auto MakeApplication(std::string_view name, std::string_view description, std::string_view version,
-                                CLIOptionsOther &&...options);
+                                CLIOptionsOther&&... options);
 };
 
 /// Creates a high-level application object; see ::CLIApplication for more
 /// information.
 template <typename... CLIOptions>
 auto MakeApplication(std::string_view name, std::string_view description, std::string_view version,
-                     CLIOptions &&...options) {
+                     CLIOptions&&... options) {
     CLIOptionParser parser{CLIOption{"help", "Show usage information"}.Short('h').Long("help").Flag(),
                            CLIOption{"version", "Show version"}.Long("version").Flag(),
                            std::forward<CLIOptions>(options)...};
