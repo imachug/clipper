@@ -763,7 +763,7 @@ protected:
     /// kind
     bool IsSpecialArgument(std::string_view argument) const {
         // -short, --long, --
-        return argument[0] == '-' && argument.size() >= 2;
+        return argument.size() >= 2 && argument[0] == '-';
     }
 
     /// Parse a vector of arguments of a single option.
