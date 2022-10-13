@@ -689,7 +689,13 @@ public:
         // Values
         if (max_arguments > 0) {
             if (!text.empty()) {
-                text += ' ';
+                if (Kind == CLIOptionKind::OPTIONAL_SINGLE_VALUE) {
+                    if (!long_keys.empty()) {
+                        text += '=';
+                    }
+                } else {
+                    text += ' ';
+                }
             }
             if (min_arguments == 0) {
                 text += '[';
